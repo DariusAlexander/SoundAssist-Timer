@@ -1,0 +1,197 @@
+<script src="scripts/Class_Timer.js"></script>
+<script src="scripts/Class_Controller.js"></script>
+<link rel="stylesheet" href="style-default.css">
+<link rel="stylesheet" media="screen and (max-width: 1400px)" href="style-medium.css">
+<link rel="stylesheet" media="screen and (max-width: 1000px)" href="style-mobile.css">
+<link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+
+<button id='btn_new_timer' class="btn" onclick="func_new_timer()">New Timer</button>
+<button id='btn_clear_mem' class="btn" onclick="func_clear_mem()">Delete All</button>
+<button id='btn_info' class="btn" onclick="func_info_hide()">Info</button>
+
+<body>
+    <div id="info">
+        Designed to help keep track of time elapsed since TX/IEM packs have had batteries/TC/etc attended to.
+        <ul>
+            <li>Press the "Info" button to toggle view of this information.
+            <li>Click "New Timer" to add a clock. Timer starts automatically on creation.
+            <li>Double Click "Delete" & "Reset" buttons to use.
+            <li>Time is displayed in hh:mm and automatically updates on a slow cycle.
+            <li>Timers are white as default, yellow at 2hrs, and red after 4hrs.
+            <li>Edit text by selecting a field then typing.
+            <li>Timer names, TX names, and times are automatically saved.
+            <li>Data is stored locally on your device. Data should persist through page refreshes and window/tab
+                closes.
+            <li>As this app doesn't require a constant internet connection, you can save this page (Ctrl/Cmd + S) to
+                download the files to run it locally on your computer or laptop.
+            <li>Send feedback or suggestions to <a
+                    href='mailto:dariusjalexander@gmail.com'>dariusjalexander@gmail.com</a>
+        </ul>
+    </div>
+    <div id="timers_container"></div>
+</body>
+
+<script>
+    const t_update = 20000; // Update timer (ms)
+    let saveTimer; // save timer identifier
+
+    const controller = new Controller(null); // Timer controller
+    const elem_timers_container = document.getElementById('timers_container');
+    const info = document.getElementById('info'); // info container
+    func_load_info_hidden_status(); // update info hide status
+
+    // Check & load saved data
+    controller.load(window.localStorage.getItem('timers'));
+    for (const id in controller.timers) {
+        const t = controller.get(id);
+        func_new_timer(id);
+    }
+
+    // Make sure update clock is running
+    myInterval = setInterval(func_update_timers, t_update);
+    // clearInterval(myInterval); // to stop
+
+    function func_new_timer(timer_id = null) {
+
+        // Get Timer and ID's sorted
+        let id_temp = timer_id;
+        if (timer_id == null) {
+            id_temp = controller.new_timer();
+        }
+        const timer = controller.get(id_temp);
+        const id = id_temp;
+
+        // Div container
+        let div = document.createElement('div');
+        div.classList.add('timer_div');
+        div.id = "elem_div" + id;
+
+        // cells
+        let cell1 = document.createElement('div');
+        let cell2 = document.createElement('div');
+        let cell3 = document.createElement('div');
+        cell1.classList.add('cell_input');
+        cell2.classList.add('cell_display');
+        cell3.classList.add('cell_buttons');
+
+        div.appendChild(cell1);
+        div.appendChild(cell2);
+        div.appendChild(cell3);
+
+
+        // TX name input/display
+        let tx_name = document.createElement('input');
+        tx_name.classList.add('timer_tx_name');
+        tx_name.type = 'text';
+        tx_name.value = timer.tx_name;
+        tx_name.placeholder = 'Transmitter';
+        tx_name.addEventListener('keyup', () => { func_update_tx_name(id, tx_name.value) });
+        cell1.appendChild(tx_name);
+
+        cell1.appendChild(document.createElement('br'));
+
+        // Name input/display
+        let name = document.createElement('input');
+        name.classList.add('timer_name');
+        name.type = 'text';
+        name.value = timer.name;
+        name.placeholder = 'Name';
+        name.addEventListener('keyup', () => { func_update_name(id, name.value) });
+        cell1.appendChild(name);
+
+        // Timer display
+        let display = cell2;
+        display.value = id;
+        display.textContent = timer.elapsed;
+        func_update_timer(display);
+
+        // Delete button
+        let button_del = document.createElement('button');
+        button_del.classList.add('btn', 'timer_btn_del');
+        button_del.id = "btn_del" + id;
+        button_del.textContent = "Delete";
+        button_del.addEventListener("dblclick", () => { (func_del_timer(id)) });
+        cell3.appendChild(button_del);
+
+        // Reset button
+        let button_reset = document.createElement('button');
+        button_reset.classList.add('btn', 'timer_btn_reset');
+        button_reset.textContent = "Reset";
+        button_reset.addEventListener('dblclick', () => { timer.reset() });
+        button_reset.addEventListener('dblclick', () => { func_update_timer(display) });
+        cell3.appendChild(button_reset);
+
+        elem_timers_container.appendChild(div);
+
+        func_save_json();
+    }
+
+    function func_del_timer(id) {
+        document.getElementById('elem_div' + id).remove();
+        controller.delete_timer(id);
+        func_save_json();
+    }
+
+    function func_update_name(id, value) {
+        controller.get(id).name = value;
+        func_save_json();
+    }
+
+    function func_update_tx_name(id, value) {
+        controller.get(id).tx_name = value;
+        func_save_json();
+    }
+
+    function func_update_timers() {
+        let displays = document.getElementsByClassName('timer_display');
+        for (let display of displays) {
+            func_update_timer(display);
+        }
+        func_save_json();
+    }
+
+    function func_update_timer(display) {
+        let timer = controller.get(display.value);
+        display.textContent = timer.elapsed;
+        display.style.color = timer.color;
+        func_save_json();
+    }
+
+    function func_save_json(path) {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            let json = [];
+            for (const id in controller.timers) {
+                const t = controller.get(id);
+                let d = { 'id': t.id, 'name': t.name, 'tx_name': t.tx_name, 'time': t.time }
+                json.push(d);
+            }
+            window.localStorage.setItem('timers', JSON.stringify(json));
+        }, 500); // wait for (ms) inactivity to save
+    }
+
+    function func_clear_mem() {
+        var res = confirm("Delete all Timers?");
+        if (res) {
+            let divs = document.getElementsByClassName('timer_div');
+            while (divs.length) { divs[0].remove(); }
+            window.localStorage.removeItem('timers');
+            controller.clear();
+        }
+    }
+
+    function func_info_hide() {
+        info.style.display = info.style.display == 'none' ? 'block' : 'none';
+        window.localStorage.setItem('info', info.style.display);
+    }
+
+    function func_load_info_hidden_status() {
+        let h = window.localStorage.getItem('info');
+        if (h != undefined && h != null) {
+            info.style.display = h;
+        } else {
+            // default
+            info.style.display = 'block';
+        }
+    }
+</script>

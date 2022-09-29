@@ -1,0 +1,93 @@
+body {
+    background-color: rgb(56, 56, 56);
+}
+
+#info {
+    color: lightgray;
+    padding: 1em;
+    font-size: 1.2em;
+}
+
+a {
+    color: rgb(85, 85, 255);
+}
+
+table,
+tr {
+    width: 100%;
+}
+
+button {
+    font-size: 1em;
+    padding: 0.5em;
+    margin: 0.2em;
+}
+
+input {
+    margin: 0.2em;
+    width: calc(100% - 0.5em);
+    background-color: rgb(56, 56, 56);
+    border-style: none;
+    color: lightgray;
+    text-align: left;
+}
+
+#timers_container {
+    margin: auto;
+    width: 98%;
+    padding: 0.2em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.timer_div {
+    display: inline-block;
+    border: 0.1rem;
+    border-style: solid;
+    border-color: darkgray;
+    margin: 0.2em;
+    flex: 30%;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.cell_input {
+    margin: auto;
+}
+
+.cell_display {
+    margin: auto;
+    font-family: 'Digital-7 Mono', sans-serif;
+    font-size: 3em;
+    text-align: center;
+    color: white;
+    padding: 0.5em;
+}
+
+.cell_buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.timer_tx_name {
+    font-size: 1em;
+}
+
+.timer_name {
+    font-size: 2em;
+}
+
+.timer_btn_del {
+    width: 5em;
+    color: red;
+    float: right
+}
+
+.timer_btn_reset {
+    width: 5em;
+    color: orange;
+    float: right
+}

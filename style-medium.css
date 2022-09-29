@@ -1,0 +1,23 @@
+.timer_div {
+    flex: 45%;
+}
+
+.cell_input {}
+
+.timer_tx_name {
+    font-size: 1em;
+}
+
+.timer_name {
+    font-size: 2em;
+}
+
+.cell_display {
+    font-size: 3em;
+}
+
+.cell_buttons {}
+
+.timer_btn_del {}
+
+.timer_btn_reset {}
