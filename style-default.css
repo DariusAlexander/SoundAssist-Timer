@@ -1,11 +1,30 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 body {
     background-color: rgb(56, 56, 56);
+    max-width: 100%;
+}
+
+#nav {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
 }
 
 #info {
     color: lightgray;
-    padding: 1em;
-    font-size: 1.2em;
+    padding: 1rem;
+    font-size: 1.2rem;
+}
+
+.inline-outline {
+    display: inline;
+    padding: 0.1em 0.3em;
+    vertical-align: middle;
+    font-size: 0.8em;
+    outline: 1px solid grey;
 }
 
 a {
@@ -18,76 +37,99 @@ tr {
 }
 
 button {
-    font-size: 1em;
-    padding: 0.5em;
-    margin: 0.2em;
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin: 0.2rem;
+    background-color: rgb(211, 211, 211);
+    border: none;
+    border-radius: 0;
 }
 
 input {
-    margin: 0.2em;
-    width: calc(100% - 0.5em);
-    background-color: rgb(56, 56, 56);
+    margin: 0.3rem;
+    padding: 0rem 1rem;
+    width: calc(100% - 0.5rem);
     border-style: none;
     color: lightgray;
     text-align: left;
+    background-color: rgb(56, 56, 56);
 }
 
 #timers_container {
     margin: auto;
     width: 98%;
-    padding: 0.2em;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .timer_div {
-    display: inline-block;
-    border: 0.1rem;
-    border-style: solid;
-    border-color: darkgray;
-    margin: 0.2em;
-    flex: 30%;
+    flex: 32%;
+    display: block;
+    margin: 0.3rem;
+    outline: 0.1rem solid darkgray;
+    overflow: hidden;
+}
+
+.flex_div {
     display: flex;
-    flex-flow: row;
+    flex-flow: row nowrap;
     justify-content: space-between;
-    align-items: stretch;
+    align-content: space-between;
+    align-items: center;
+    justify-items: center;
+    background-color: rgb(56, 56, 56);
 }
 
 .cell_input {
-    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    flex: 60%;
+}
+
+.timer_tx_name {
+    font-size: 1rem;
+}
+
+.timer_name {
+    font-size: 2rem;
 }
 
 .cell_display {
-    margin: auto;
     font-family: 'Digital-7 Mono', sans-serif;
-    font-size: 3em;
-    text-align: center;
+    font-size: 3rem;
     color: white;
-    padding: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 40%;
+    padding: 0 1rem;
 }
+
 
 .cell_buttons {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.timer_tx_name {
-    font-size: 1em;
-}
-
-.timer_name {
-    font-size: 2em;
+.timer_btn {
+    width: 5rem;
+    float: right;
 }
 
 .timer_btn_del {
-    width: 5em;
     color: red;
-    float: right
 }
 
 .timer_btn_reset {
-    width: 5em;
     color: orange;
-    float: right
+}
+
+.btn_touch {
+    display: none;
 }

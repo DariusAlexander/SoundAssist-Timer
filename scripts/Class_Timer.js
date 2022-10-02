@@ -8,25 +8,30 @@ class Timer {
         else this.time = input['time'];
     }
 
+    get #dt() {
+        return (new Date().getTime() - this.time);
+    }
+
     get elapsed() {
-        let dt = new Date().getTime() - this.time;
-        return this.parse(dt);
+        return Timer.parse(this.#dt);
     }
 
     get color() {
-        let dt = new Date().getTime() - this.time;
-        if (dt < 7.2e+6) {
+        if (this.#dt < 7.2e+6) {
             return 'white';
-        } else if (dt < 1.44e+7) {
+        } else if (this.#dt < 1.44e+7) {
             return 'yellow';
         } else {
             return 'red';
         }
     }
 
-    parse(dt) {
-        let hours = Math.floor((dt % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        let minutes = Math.floor((dt % (1000 * 60 * 60)) / (1000 * 60));
+    static parse(dt) {
+        const hours = Math.floor(dt / (1000 * 60 * 60));
+        if (hours > 23) {
+            return "--:--";
+        }
+        const minutes = Math.floor((dt % (1000 * 60 * 60)) / (1000 * 60));
         return String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0');
     }
 

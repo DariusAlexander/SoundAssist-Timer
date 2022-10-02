@@ -1,29 +1,38 @@
-<script src="scripts/Class_Timer.js"></script>
-<script src="scripts/Class_Controller.js"></script>
-<link rel="stylesheet" href="style-default.css">
-<link rel="stylesheet" media="screen and (max-width: 1400px)" href="style-medium.css">
-<link rel="stylesheet" media="screen and (max-width: 1000px)" href="style-mobile.css">
-<link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+<head>
+    <script src="scripts/Class_Timer.js"></script>
+    <script src="scripts/Class_Controller.js"></script>
+    <link rel="stylesheet" href="style-default.css">
+    <link rel="stylesheet" media="screen and (max-width: 1400px)" href="style-medium.css">
+    <link rel="stylesheet" media="screen and (max-width: 800px)" href="style-mobile.css">
+    <meta meta name="viewport" content="width=device-width, user-scalable=no" />
+    <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<button id='btn_new_timer' class="btn" onclick="func_new_timer()">New Timer</button>
-<button id='btn_clear_mem' class="btn" onclick="func_clear_mem()">Delete All</button>
-<button id='btn_info' class="btn" onclick="func_info_hide()">Info</button>
+</head>
 
-<body>
+<body id="body">
+    <div id='nav'>
+        <button id='btn_info' class="btn" onclick="func_info_hide()"><i class="fa fa-info"></i></button>
+        <button id='btn_clear_mem' class="btn" onclick="func_clear_mem()">Delete All</button>
+        <button id='btn_new_timer' class="btn" onclick="func_new_timer()">New <i class="fa fa-plus"></i></button>
+    </div>
     <div id="info">
-        Designed to help keep track of time elapsed since TX/IEM packs have had batteries/TC/etc attended to.
+        Designed to help keep track of time elapsed since TX/IEM packs have had batteries/TC/etc attended.
         <ul>
-            <li>Press the "Info" button to toggle view of this information.
-            <li>Click "New Timer" to add a clock. Timer starts automatically on creation.
-            <li>Double Click "Delete" & "Reset" buttons to use.
-            <li>Time is displayed in hh:mm and automatically updates on a slow cycle.
-            <li>Timers are white as default, yellow at 2hrs, and red after 4hrs.
-            <li>Edit text by selecting a field then typing.
-            <li>Timer names, TX names, and times are automatically saved.
-            <li>Data is stored locally on your device. Data should persist through page refreshes and window/tab
-                closes.
-            <li>As this app doesn't require a constant internet connection, you can save this page (Ctrl/Cmd + S) to
-                download the files to run it locally on your computer or laptop.
+            <li>Press <div class="inline-outline"><i class="fa fa-info"></i></div> to toggle view of this
+                information
+            <li>Click <div class="inline-outline">New <i class="fa fa-plus"></i></div> to create a timer
+            <li>Double Click <div class="inline-outline"><i class="fa fa-trash " style="color:red;"></i></div> & <div
+                    class="inline-outline"><i class="fa fa-rotate-right " style="color:orange;"></i></div> buttons to
+                delete & reset each timer
+            <li>On mobile, swipe left and right to access <div class="inline-outline"><i class="fa fa-trash "
+                        style="color:red;"></i></div> & <div class="inline-outline"><i class="fa fa-rotate-right "
+                        style="color:orange;"></i></div>.
+            <li>Time automatically updates
+            <li>Edit text by selecting a field then typing
+            <li>Timer names, TX names, and times are automatically saved. Data is stored locally on your device
+            <li>You can save this page (Ctrl/Cmd + S) to download the files to run it locally on your computer or
+                laptop
             <li>Send feedback or suggestions to <a
                     href='mailto:dariusjalexander@gmail.com'>dariusjalexander@gmail.com</a>
         </ul>
@@ -66,18 +75,28 @@
         div.classList.add('timer_div');
         div.id = "elem_div" + id;
 
-        // cells
+        // flex div
+        let flex_div = document.createElement('div');
+        flex_div.classList.add('flex_div');
+        flex_div.name = "elem_flex";
+        flex_div.id = "elem_flex" + id;
+
+        // Swipe/Touch feature
+        flex_div.addEventListener('touchstart', (e) => { handle_touch_start(e, flex_div, id) });
+        flex_div.addEventListener('touchend', (e) => { handle_touch_end(e, flex_div, id) });
+        flex_div.addEventListener('touchmove', (e) => { handle_touch_move(e, flex_div, id) });
+
+        // Cells
         let cell1 = document.createElement('div');
         let cell2 = document.createElement('div');
         let cell3 = document.createElement('div');
         cell1.classList.add('cell_input');
         cell2.classList.add('cell_display');
         cell3.classList.add('cell_buttons');
-
-        div.appendChild(cell1);
-        div.appendChild(cell2);
-        div.appendChild(cell3);
-
+        flex_div.appendChild(cell1);
+        flex_div.appendChild(cell2);
+        flex_div.appendChild(cell3);
+        div.appendChild(flex_div);
 
         // TX name input/display
         let tx_name = document.createElement('input');
@@ -87,8 +106,6 @@
         tx_name.placeholder = 'Transmitter';
         tx_name.addEventListener('keyup', () => { func_update_tx_name(id, tx_name.value) });
         cell1.appendChild(tx_name);
-
-        cell1.appendChild(document.createElement('br'));
 
         // Name input/display
         let name = document.createElement('input');
@@ -101,26 +118,50 @@
 
         // Timer display
         let display = cell2;
+        display.id = 'timer_display' + id;
+        // display.classList.add('timer_display');
         display.value = id;
         display.textContent = timer.elapsed;
         func_update_timer(display);
 
         // Delete button
         let button_del = document.createElement('button');
-        button_del.classList.add('btn', 'timer_btn_del');
-        button_del.id = "btn_del" + id;
-        button_del.textContent = "Delete";
+        button_del.classList.add('btn', 'timer_btn_del', 'timer_btn');
+        button_del.name = "btn_del";
+        button_del.innerHTML = '<i class="fa fa-trash"></i>';
         button_del.addEventListener("dblclick", () => { (func_del_timer(id)) });
         cell3.appendChild(button_del);
 
         // Reset button
         let button_reset = document.createElement('button');
-        button_reset.classList.add('btn', 'timer_btn_reset');
-        button_reset.textContent = "Reset";
-        button_reset.addEventListener('dblclick', () => { timer.reset() });
-        button_reset.addEventListener('dblclick', () => { func_update_timer(display) });
+        button_reset.classList.add('btn', 'timer_btn_reset', 'timer_btn');
+        button_reset.name = "btn_reset";
+        button_reset.textContent = 'Reset';
+        button_reset.innerHTML = '<i class="fa fa-rotate-right"></i>';
+        button_reset.addEventListener('dblclick', () => { func_reset_timer(id) });
         cell3.appendChild(button_reset);
 
+        // Touch Delete Button
+        let touch_button_del = document.createElement('button');
+        touch_button_del.classList.add('btn', 'timer_btn_touch_del', 'btn_touch');
+        touch_button_del.name = "btn_del";
+        touch_button_del.id = "btn_touch_del" + id;
+        touch_button_del.innerHTML = '<i class="fa fa-trash"></i>';
+        touch_button_del.addEventListener('touchstart', (e) => { handle_touch_start(e, touch_button_del, id) });
+        touch_button_del.addEventListener('touchend', (e) => { handle_touch_end(e, touch_button_del, id) });
+        div.appendChild(touch_button_del);
+
+        // Touch Reset Button
+        let touch_button_reset = document.createElement('button');
+        touch_button_reset.classList.add('btn', 'timer_btn_touch_reset', 'btn_touch');
+        touch_button_reset.name = "btn_reset";
+        touch_button_reset.id = "btn_touch_reset" + id;
+        touch_button_reset.innerHTML = '<i class="fa fa-rotate-right"></i>';
+        touch_button_reset.addEventListener('touchstart', (e) => { handle_touch_start(e, touch_button_reset, id) });
+        touch_button_reset.addEventListener('touchend', (e) => { handle_touch_end(e, touch_button_reset, id) });
+        div.appendChild(touch_button_reset);
+
+        // Add to timers container
         elem_timers_container.appendChild(div);
 
         func_save_json();
@@ -142,8 +183,14 @@
         func_save_json();
     }
 
+    function func_reset_timer(id) {
+        let timer = controller.get(id);
+        timer.reset();
+        func_update_timers();
+    }
+
     function func_update_timers() {
-        let displays = document.getElementsByClassName('timer_display');
+        let displays = document.getElementsByClassName('cell_display');
         for (let display of displays) {
             func_update_timer(display);
         }
@@ -157,7 +204,7 @@
         func_save_json();
     }
 
-    function func_save_json(path) {
+    function func_save_json() {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
             let json = [];
@@ -193,5 +240,130 @@
             // default
             info.style.display = 'block';
         }
+    }
+
+    // - - - - - - - - - - - - - - - - - - -
+    // Touch functions
+    // - - - - - - - - - - - - - - - - - - -
+    let drag_active = false;
+    let drag_cancelled = false;
+    let initial_x;
+    let initial_y;
+    let initial_time;
+    let initial_offset;
+    let touch_elem;
+    let x_offset = 0;
+    let timeout_tap;
+    function handle_touch_start(event, touch_elem, id) {
+        handle_timeout_tap(event);
+        initial_time = new Date().getTime();
+        initial_x = event.touches[0].clientX - x_offset;
+        initial_y = event.touches[0].clientY
+        initial_offset = getTranslate(document.getElementById('elem_flex' + id));
+    }
+
+    function handle_timeout_tap(event) {
+        timeout_tap = setTimeout(() => {
+            event.preventDefault();
+        }, 200);
+    }
+
+    function handle_touch_end(event, touch_elem, id) {
+        if (drag_cancelled) {
+            event.preventDefault();
+            drag_cancelled = false;
+        } else {
+            // Figure out action
+            if (drag_active) {
+                event.preventDefault();
+                drag_active = false; // treat as drag end
+
+                // viewport-based threshold - should be flex_div width based
+                let offset_thresh = window.innerWidth / 4;
+
+                // Calc speed for flick detection
+                let dt = new Date().getTime() - initial_time;
+                let dx = x_offset - initial_x;
+                let vel = dx / dt;
+                let flick_valid = Math.abs(dx) > offset_thresh / 4 && dt > 50 && dt < 400;
+
+                // decide to hold offset
+                if ((x_offset + initial_offset) < -offset_thresh || (flick_valid && vel < -3)) {
+                    setTranslate(-50 + '%', touch_elem);
+                    document.getElementById('btn_touch_reset' + id).style.zIndex = 1;
+                } else if ((x_offset + initial_offset) > offset_thresh || (flick_valid && vel > 3)) {
+                    setTranslate(50 + '%', touch_elem);
+                    document.getElementById('btn_touch_del' + id).style.zIndex = 1;
+                } else {
+                    // put back?
+                    setTranslate(0, touch_elem);
+                    document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+                    document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+                }
+            } else {
+                // Treat as Tap
+                // limit by time? could also use time to figure out limits for 'hold'?
+                let el = document.getElementById('elem_flex' + id); // flex div to translate
+                if (touch_elem.name == 'btn_del') {
+                    document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+                    document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+                    func_del_timer(id);
+                    //setTranslate(0, el); // no need to do this, or I could animate it away?
+                } else if (touch_elem.name == 'btn_reset') {
+                    document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+                    document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+                    func_reset_timer(id, touch_elem);
+                    setTranslate(0, el);
+                } else if (touch_elem == el) {
+                    document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+                    document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+                    setTranslate(0, el);
+                }
+            }
+        }
+        // Resets
+        x_offset = 0;
+        drag_cancelled = false;
+    }
+
+    function handle_touch_move(event, touch_elem, id) {
+        //event.preventDefault();
+        let currentX = event.touches[0].clientX - initial_x;
+        drag_active = !drag_cancelled && (drag_active || Math.abs(currentX) > 50)
+
+        // decide to trigger cancel touch? when y is bigger than threshhold or proportion of x, or both? 
+        let currentY = event.touches[0].clientY - initial_y;
+        let dt = new Date().getTime() - initial_time;
+        if (dt > 2000 || Math.abs(currentY) > window.innerHeight / 8) {
+            drag_cancelled = true;
+            document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+            document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+            setTranslate(0, document.getElementById('elem_flex' + id));
+        }
+
+        if (drag_active) {
+            event.preventDefault();
+            // document.getElementById('body').style.touchAction = 'none';
+
+            // put touch buttons backwards on z
+            document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+            document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+            clearTimeout(timeout_tap);
+
+            x_offset = currentX;
+
+            setTranslate('calc(' + initial_offset + 'px + ' + 0.8 * currentX + 'px)', touch_elem);
+
+
+        }
+
+    }
+
+    function setTranslate(xPos, el) {
+        el.style.transform = 'translateX(' + xPos + ')';
+    }
+
+    function getTranslate(el) {
+        return new WebKitCSSMatrix(window.getComputedStyle(el).transform).m41;
     }
 </script>
