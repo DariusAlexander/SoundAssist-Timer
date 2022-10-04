@@ -1,22 +1,53 @@
 * {
     font-family: Arial, Helvetica, sans-serif;
+    --timer_height: 8rem;
+    --nav_height: 4em;
 }
 
 body {
     background-color: rgb(56, 56, 56);
     max-width: 100%;
+    font-size: calc(15px + 0.390625vw);
+    overflow-y: auto;
 }
 
 #nav {
+    position: fixed;
+    top: 0;
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
+    width: 100%;
+    height: var(--nav_height);
+    background-color: rgb(56, 56, 56);
+    z-index: 100;
+}
+
+#btn_new_timer {
+    border: 0.2rem solid green;
+}
+
+#btn_clear_mem {
+    border: 0.2rem solid red;
+}
+
+#btn_info {
+    border: 0.2rem solid rgb(0, 0, 149);
 }
 
 #info {
+    display: initial;
+    position: fixed;
     color: lightgray;
-    padding: 1rem;
-    font-size: 1.2rem;
+    padding: 0.5em;
+    font-size: 1em;
+    width: 90%;
+    margin: 1rem 2.5%;
+    /* margin-top: var(--nav_height); */
+    background-color: rgb(56, 56, 56);
+    z-index: 100;
+    overflow-x: hidden;
+    border: 0.2rem solid rgb(0, 0, 149);
 }
 
 .inline-outline {
@@ -31,24 +62,20 @@ a {
     color: rgb(85, 85, 255);
 }
 
-table,
-tr {
-    width: 100%;
-}
-
 button {
-    font-size: 1rem;
-    padding: 0.5rem;
-    margin: 0.2rem;
+    font-size: 0.9em;
+    padding: 0.3em 0.8em;
+    margin: 0.2em;
     background-color: rgb(211, 211, 211);
     border: none;
     border-radius: 0;
+    min-width: 3em;
 }
 
 input {
-    margin: 0.3rem;
-    padding: 0rem 1rem;
-    width: calc(100% - 0.5rem);
+    margin: 0.1em;
+    padding: 0;
+    width: calc(100% - 0.5em);
     border-style: none;
     color: lightgray;
     text-align: left;
@@ -56,19 +83,21 @@ input {
 }
 
 #timers_container {
-    margin: auto;
-    width: 98%;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
     align-items: center;
+    width: 98%;
+    margin: 0 auto;
+    margin-top: var(--nav_height);
 }
 
 .timer_div {
-    flex: 32%;
+    flex: 24%;
+    min-width: min(20em, 90vw);
     display: block;
-    margin: 0.3rem;
-    outline: 0.1rem solid darkgray;
+    margin: 0.3em;
+    outline: 0.1em solid darkgray;
     overflow: hidden;
 }
 
@@ -77,36 +106,39 @@ input {
     flex-flow: row nowrap;
     justify-content: space-between;
     align-content: space-between;
-    align-items: center;
     justify-items: center;
+    align-items: center;
     background-color: rgb(56, 56, 56);
+    padding: 0.2em;
+    z-index: 0;
 }
 
 .cell_input {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: space-around;
     flex: 60%;
 }
 
 .timer_tx_name {
-    font-size: 1rem;
+    font-size: 0.9em;
 }
 
 .timer_name {
-    font-size: 2rem;
+    font-size: 1.6em;
 }
 
 .cell_display {
     font-family: 'Digital-7 Mono', sans-serif;
-    font-size: 3rem;
+    font-size: 2.5em;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 40%;
-    padding: 0 1rem;
+    flex: 30%;
+    padding: 0 0.2em;
+    margin: 0;
 }
 
 
@@ -115,10 +147,12 @@ input {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    padding: 0;
+    margin: 0;
 }
 
 .timer_btn {
-    width: 5rem;
+    width: 3.5em;
     float: right;
 }
 

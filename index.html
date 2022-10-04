@@ -1,19 +1,17 @@
 <head>
-    <script src="scripts/Class_Timer.js"></script>
-    <script src="scripts/Class_Controller.js"></script>
+    <script src="classes.js"></script>
     <link rel="stylesheet" href="style-default.css">
-    <link rel="stylesheet" media="screen and (max-width: 1400px)" href="style-medium.css">
-    <link rel="stylesheet" media="screen and (max-width: 800px)" href="style-mobile.css">
+    <link rel="stylesheet" media="screen and (max-width: 1000px)" href="style-mobile.css">
     <meta meta name="viewport" content="width=device-width, user-scalable=no" />
     <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <title>Sound Assist - Timer</title>
 </head>
 
 <body id="body">
     <div id='nav'>
+        <button id='btn_clear_mem' class="btn" onclick="func_clear_mem()"><i class="fa fa-trash"></i> All</button>
         <button id='btn_info' class="btn" onclick="func_info_hide()"><i class="fa fa-info"></i></button>
-        <button id='btn_clear_mem' class="btn" onclick="func_clear_mem()">Delete All</button>
         <button id='btn_new_timer' class="btn" onclick="func_new_timer()">New <i class="fa fa-plus"></i></button>
     </div>
     <div id="info">
@@ -29,10 +27,10 @@
                         style="color:red;"></i></div> & <div class="inline-outline"><i class="fa fa-rotate-right "
                         style="color:orange;"></i></div>.
             <li>Time automatically updates
-            <li>Edit text by selecting a field then typing
+            <li>Edit names by selecting a field to type
             <li>Timer names, TX names, and times are automatically saved. Data is stored locally on your device
-            <li>You can save this page (Ctrl/Cmd + S) to download the files to run it locally on your computer or
-                laptop
+            <li>You can save the source code (Ctrl/Cmd + S) to run it locally on your laptop for when you don't have an
+                internet connection
             <li>Send feedback or suggestions to <a
                     href='mailto:dariusjalexander@gmail.com'>dariusjalexander@gmail.com</a>
         </ul>
@@ -41,6 +39,12 @@
 </body>
 
 <script>
+    // viewheight fix?
+    window.addEventListener('resize', () => {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    });
+
+
     const t_update = 20000; // Update timer (ms)
     let saveTimer; // save timer identifier
 
@@ -102,6 +106,7 @@
         let tx_name = document.createElement('input');
         tx_name.classList.add('timer_tx_name');
         tx_name.type = 'text';
+        tx_name.spellcheck = "false";
         tx_name.value = timer.tx_name;
         tx_name.placeholder = 'Transmitter';
         tx_name.addEventListener('keyup', () => { func_update_tx_name(id, tx_name.value) });
@@ -111,6 +116,7 @@
         let name = document.createElement('input');
         name.classList.add('timer_name');
         name.type = 'text';
+        name.spellcheck = "false";
         name.value = timer.name;
         name.placeholder = 'Name';
         name.addEventListener('keyup', () => { func_update_name(id, name.value) });
@@ -148,6 +154,7 @@
         touch_button_del.id = "btn_touch_del" + id;
         touch_button_del.innerHTML = '<i class="fa fa-trash"></i>';
         touch_button_del.addEventListener('touchstart', (e) => { handle_touch_start(e, touch_button_del, id) });
+        touch_button_del.addEventListener('touchmove', (e) => { handle_touch_move(e, touch_button_del, id) });
         touch_button_del.addEventListener('touchend', (e) => { handle_touch_end(e, touch_button_del, id) });
         div.appendChild(touch_button_del);
 
@@ -158,6 +165,7 @@
         touch_button_reset.id = "btn_touch_reset" + id;
         touch_button_reset.innerHTML = '<i class="fa fa-rotate-right"></i>';
         touch_button_reset.addEventListener('touchstart', (e) => { handle_touch_start(e, touch_button_reset, id) });
+        touch_button_reset.addEventListener('touchmove', (e) => { handle_touch_move(e, touch_button_reset, id) });
         touch_button_reset.addEventListener('touchend', (e) => { handle_touch_end(e, touch_button_reset, id) });
         div.appendChild(touch_button_reset);
 
@@ -218,7 +226,7 @@
     }
 
     function func_clear_mem() {
-        var res = confirm("Delete all Timers?");
+        var res = window.confirm("Are you sure you want to delete all timers?");
         if (res) {
             let divs = document.getElementsByClassName('timer_div');
             while (divs.length) { divs[0].remove(); }
@@ -228,7 +236,7 @@
     }
 
     function func_info_hide() {
-        info.style.display = info.style.display == 'none' ? 'block' : 'none';
+        info.style.display = info.style.display == 'none' ? 'initial' : 'none';
         window.localStorage.setItem('info', info.style.display);
     }
 
@@ -238,7 +246,7 @@
             info.style.display = h;
         } else {
             // default
-            info.style.display = 'block';
+            info.style.display = 'initial';
         }
     }
 
@@ -254,21 +262,33 @@
     let touch_elem;
     let x_offset = 0;
     let timeout_tap;
+    let timeout_animate = null;
+    let time_animate = 350; // animation time
     function handle_touch_start(event, touch_elem, id) {
-        handle_timeout_tap(event);
+        //event.preventDefault();
+        //event.stopPropagation();
+        handle_timeout_tap(event, id);
         initial_time = new Date().getTime();
         initial_x = event.touches[0].clientX - x_offset;
         initial_y = event.touches[0].clientY
+        clearTimeout(timeout_animate);
+        timeout_animate = null;
         initial_offset = getTranslate(document.getElementById('elem_flex' + id));
     }
 
-    function handle_timeout_tap(event) {
+    function handle_timeout_tap(event, id) {
         timeout_tap = setTimeout(() => {
+            event.stopPropagation();
             event.preventDefault();
-        }, 200);
+            drag_cancelled = true;
+            document.getElementById('btn_touch_del' + id).style.zIndex = -1;
+            document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+            setTranslate(0, document.getElementById('elem_flex' + id));
+        }, 1000);
     }
 
     function handle_touch_end(event, touch_elem, id) {
+        clearTimeout(timeout_tap);
         if (drag_cancelled) {
             event.preventDefault();
             drag_cancelled = false;
@@ -279,7 +299,7 @@
                 drag_active = false; // treat as drag end
 
                 // viewport-based threshold - should be flex_div width based
-                let offset_thresh = window.innerWidth / 4;
+                let offset_thresh = document.getElementById('elem_flex' + id).clientWidth / 4;
 
                 // Calc speed for flick detection
                 let dt = new Date().getTime() - initial_time;
@@ -289,16 +309,16 @@
 
                 // decide to hold offset
                 if ((x_offset + initial_offset) < -offset_thresh || (flick_valid && vel < -3)) {
-                    setTranslate(-50 + '%', touch_elem);
-                    document.getElementById('btn_touch_reset' + id).style.zIndex = 1;
+                    setTranslate(-50 + '%', document.getElementById('elem_flex' + id), time_animate);
+                    setTimeout(() => { document.getElementById('btn_touch_reset' + id).style.zIndex = 1; }, time_animate);
                 } else if ((x_offset + initial_offset) > offset_thresh || (flick_valid && vel > 3)) {
-                    setTranslate(50 + '%', touch_elem);
-                    document.getElementById('btn_touch_del' + id).style.zIndex = 1;
+                    setTranslate(50 + '%', document.getElementById('elem_flex' + id), time_animate);
+                    setTimeout(() => { document.getElementById('btn_touch_del' + id).style.zIndex = 1; }, time_animate);
                 } else {
-                    // put back?
-                    setTranslate(0, touch_elem);
-                    document.getElementById('btn_touch_del' + id).style.zIndex = -1;
-                    document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
+                    // put back
+                    setTranslate(0, document.getElementById('elem_flex' + id), time_animate);
+                    setTimeout(() => { document.getElementById('btn_touch_del' + id).style.zIndex = -1; }, time_animate);
+                    setTimeout(() => { document.getElementById('btn_touch_reset' + id).style.zIndex = -1; }, time_animate);
                 }
             } else {
                 // Treat as Tap
@@ -308,16 +328,16 @@
                     document.getElementById('btn_touch_del' + id).style.zIndex = -1;
                     document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
                     func_del_timer(id);
-                    //setTranslate(0, el); // no need to do this, or I could animate it away?
+                    //setTranslate(0, document.getElementById('elem_flex' + id), time_animate); // no need to do this, or I could animate it away?
                 } else if (touch_elem.name == 'btn_reset') {
                     document.getElementById('btn_touch_del' + id).style.zIndex = -1;
                     document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
                     func_reset_timer(id, touch_elem);
-                    setTranslate(0, el);
+                    setTranslate(0, document.getElementById('elem_flex' + id), time_animate);
                 } else if (touch_elem == el) {
                     document.getElementById('btn_touch_del' + id).style.zIndex = -1;
                     document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
-                    setTranslate(0, el);
+                    setTranslate(0, document.getElementById('elem_flex' + id), time_animate);
                 }
             }
         }
@@ -327,19 +347,24 @@
     }
 
     function handle_touch_move(event, touch_elem, id) {
-        //event.preventDefault();
-        let currentX = event.touches[0].clientX - initial_x;
-        drag_active = !drag_cancelled && (drag_active || Math.abs(currentX) > 50)
+        clearTimeout(timeout_tap);
 
-        // decide to trigger cancel touch? when y is bigger than threshhold or proportion of x, or both? 
+        // Decide to trigger cancel touch? when y is bigger than threshhold or proportion of x, or both? 
         let currentY = event.touches[0].clientY - initial_y;
-        let dt = new Date().getTime() - initial_time;
+        let dt = 0;// new Date().getTime() - initial_time;
         if (dt > 2000 || Math.abs(currentY) > window.innerHeight / 8) {
-            drag_cancelled = true;
+            // cancel drag
+
+            // put touch buttons backwards on z
             document.getElementById('btn_touch_del' + id).style.zIndex = -1;
             document.getElementById('btn_touch_reset' + id).style.zIndex = -1;
-            setTranslate(0, document.getElementById('elem_flex' + id));
+            setTranslate(0, document.getElementById('elem_flex' + id), time_animate);
+            drag_cancelled = true;
         }
+
+        // Decide if drag active
+        let currentX = event.touches[0].clientX - initial_x;
+        drag_active = !drag_cancelled && (drag_active || Math.abs(currentX) > 50)
 
         if (drag_active) {
             event.preventDefault();
@@ -352,15 +377,26 @@
 
             x_offset = currentX;
 
-            setTranslate('calc(' + initial_offset + 'px + ' + 0.8 * currentX + 'px)', touch_elem);
-
-
+            document.getElementById('elem_flex' + id).style.transition = 'none';
+            setTranslate('clamp(-50%, ' + (initial_offset + currentX) + 'px, 50%)', document.getElementById('elem_flex' + id));
         }
 
     }
 
-    function setTranslate(xPos, el) {
-        el.style.transform = 'translateX(' + xPos + ')';
+    function setTranslate(xPos, el, anim) {
+        // anim: Number in ms
+        if (timeout_animate == null && anim) {
+            el.style.transition = 'transform ' + (anim / 1000) + 's cubic-bezier(0.3, 2.0, 0.3, 0.8)';
+            el.style.transform = 'translateX(' + xPos + ')';
+            // reset animation
+            timeout_animate = setTimeout(() => {
+                el.style.transition = 'none';
+                timeout_animate = null;
+            }, anim)
+        } else {
+            el.style.transform = 'translateX(' + xPos + ')';
+        }
+        //
     }
 
     function getTranslate(el) {
